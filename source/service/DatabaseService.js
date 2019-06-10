@@ -4,11 +4,18 @@ const sqlite3 = require('sqlite3').verbose();
 
 const SERVICE_NAME = "DatabaseService";
 
-var async = require("async");
 var moment = require('moment');
+var fs = require('fs');
+var path = require('path');
 
 const NAME_OF_API_KEY_TABLE = "wyze_api_keys";
 const NAME_OF_ATTACHMENTS_TABLE = "wyze_attachments";
+
+if (fs.existsSync("./wyzemail.db")) { 
+    fs.unlinkSync("./wyzemail.db");
+    console.log(SERVICE_NAME + ": Database file removed");
+} 
+
 
 let database = new sqlite3.Database('wyzemail.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) {

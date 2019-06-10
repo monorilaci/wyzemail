@@ -41,32 +41,24 @@ var sendEmail = exports.sendEmail = function(toParam, ccParam, subjectParam, bod
             ccParam.forEach(convertEmailCcArrayToString);
         } 
 
-        let emailAttachmentsFromAttachmentsParam = [];
-        if (attachmentsParam != undefined || attachmentsParam != null) {
-            let getAttachmentsByAttachmentsParamPromise = getAttachmentsByAttachmentsParam(attachmentsParam);
-            getAttachmentsByAttachmentsParamPromise.then(function(result) {
-                emailAttachmentsFromAttachmentsParam = result;
-            }, function(err) {
-                console.log(err.message);
+        getAttachmentsByAttachmentsParam(attachmentsParam).then(function(result) {
+            let mailOptions = {
+                from: '"' + process.env.EMAIL_FROM_NAME  + '" <' +  process.env.EMAIL_FROM_ADDRESS + '>',
+                to: emailToStringFromToParam,
+                cc: emailCcStringFromCcParam,
+                subject: subjectParam,
+                html: bodyParam,
+                attachments: result
+            };
+         
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return console.error(error);
+                }
+                console.log('Message sent: %s', info.messageId);
             });
-
-            
-        }
-
-        let mailOptions = {
-            from: '"' + process.env.EMAIL_FROM_NAME  + '" <' +  process.env.EMAIL_FROM_ADDRESS + '>',
-            to: emailToStringFromToParam,
-            cc: emailCcStringFromCcParam,
-            subject: subjectParam,
-            html: bodyParam,
-            attachments: emailAttachmentsFromAttachmentsParam
-        };
-     
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                return console.error(error);
-            }
-            console.log('Message sent: %s', info.messageId);
+        }, function(err) {
+            console.error(err.message);
         });
     });
 }
@@ -75,30 +67,27 @@ function getAttachmentsByAttachmentsParam(attachmentsParam) {
     return new Promise(function(resolve, reject) {
         let emailAttachmentsFromAttachmentsParam = [];
 
-        function getAttachmentById(attachmentId) {
-            let getAttachmnetByIdPromise = database.getAttachmentById(attachmentId);
+        for (var i = 0, len = attachmentsParam.length; i < len; i++) {
+            let getAttachmnetByIdPromise = database.getAttachmentById(attachmentsParam[i]);
             getAttachmnetByIdPromise.then(function(result) {
                 let filepath = "./" + fileSaver.getAttachmentsFolderName() + "/" + result.apiKey + "/" + result.filename;
                 let filename = result.filename;
                 let encoding = "base64";
                 let contentBitmap = fs.readFileSync(filepath);
                 let content = Buffer.from(contentBitmap).toString(encoding);
-    
+
                 let attachment = {
                     filename: filename,
-                    content: fs.createReadStream(filepath)
+                    content: content
                 };
                 emailAttachmentsFromAttachmentsParam.push(attachment);
+                if (emailAttachmentsFromAttachmentsParam.length == attachmentsParam.length) {
+                    return resolve(emailAttachmentsFromAttachmentsParam);
+                } 
             }, function(err) {
                 console.error(err.message);
                 throw err;
             });
         }
-    
-        if (attachmentsParam != undefined || attachmentsParam != null) {
-            attachmentsParam.forEach(getAttachmentById);
-        }
-
-        return resolve(emailAttachmentsFromAttachmentsParam);
     });
 }

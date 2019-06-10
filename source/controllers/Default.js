@@ -7,8 +7,21 @@ var database = require('../service/DatabaseService');
 var emailSender = require('../service/EmailSenderService');
 var fileSaver = require('../service/FileSaverService');
 
+var recentRequestTimes = [];
+var maximumRequests = 10;
+var maximumRequestTime = 36000;
+
 module.exports.getApiKeyGET = function getApiKeyGET (req, res, next) {
   Default.getApiKeyGET().then(function (response) {
+    var old, now = Date.now();
+    recentRequestTimes.push(now);
+    if (recentRequestTimes.length >= maximumRequests) {
+      old = recentRequestTimes.shift();
+      if (now - old <= maximumRequestTime) {
+        res.set('X-RateLimit-Limit', maximumRequests);
+        utils.writeJson(res, response, 429);
+      }
+    }
     let createApiKeyPromise = database.createApiKey();
     createApiKeyPromise.then(function(result)  {
       utils.writeJson(res, '{ "apiKey" : "' + result + '"}', 200);
@@ -17,13 +30,22 @@ module.exports.getApiKeyGET = function getApiKeyGET (req, res, next) {
     });
   })
   .catch(function (response) {
-      tils.writeJson(res, response, 500);
+      utils.writeJson(res, response, 500);
   });
 };
 
 module.exports.sendPOST = function sendPOST (req, res, next) {
   var email = req.swagger.params['email'].value;
   Default.sendPOST(email).then(function (response) {
+    var old, now = Date.now();
+    recentRequestTimes.push(now);
+    if (recentRequestTimes.length >= maximumRequests) {
+      old = recentRequestTimes.shift();
+      if (now - old <= maximumRequestTime) {
+        res.set('X-RateLimit-Limit', maximumRequests);
+        utils.writeJson(res, response, 429);
+      }
+    }
     let authPromise = auth.authentication(req);
     authPromise.then(function(result) {
       if (result) {
@@ -44,6 +66,15 @@ module.exports.sendPOST = function sendPOST (req, res, next) {
 module.exports.uploadAttachmentPOST = function uploadAttachmentPOST (req, res, next) {
   var file = req.swagger.params['file'].value;
   Default.uploadAttachmentPOST(file).then(function (response) {
+    var old, now = Date.now();
+    recentRequestTimes.push(now);
+    if (recentRequestTimes.length >= maximumRequests) {
+      old = recentRequestTimes.shift();
+      if (now - old <= maximumRequestTime) {
+        res.set('X-RateLimit-Limit', maximumRequests);
+        utils.writeJson(res, response, 429);
+      }
+    }
     let authPromise = auth.authentication(req);
     authPromise.then(function(result) {
       if (!result) {

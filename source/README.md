@@ -26,6 +26,7 @@ Links:
 - Sending e-mail with nodemailer: https://artisansweb.net/sending-email-via-gmail-smtp-server-in-nodejs/
 - Promise: https://medium.com/dev-bits/writing-neat-asynchronous-node-js-code-with-promises-32ed3a4fd098
 - Create docker image for Node.js webapp: https://nodejs.org/de/docs/guides/nodejs-docker-webapp/
+- Nodemailer doc: https://nodemailer.com/about/
 
 Docker commands:
 - Building image: Use `docker build -t <your username>/wyzemail .` command in `source` folder

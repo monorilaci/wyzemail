@@ -25,4 +25,12 @@ Links:
 - SQLite documentation for Node.js: http://www.sqlitetutorial.net/sqlite-nodejs/
 - Sending e-mail with nodemailer: https://artisansweb.net/sending-email-via-gmail-smtp-server-in-nodejs/
 - Promise: https://medium.com/dev-bits/writing-neat-asynchronous-node-js-code-with-promises-32ed3a4fd098
+- Create docker image for Node.js webapp: https://nodejs.org/de/docs/guides/nodejs-docker-webapp/
 
+Docker commands:
+- Building image: Use `docker build -t <your username>/wyzemail .` command in `source` folder
+- Run the image: Use `docker run -p 49160:8080 -d <your username>/wyzemail` command
+- Get container id: Use `docker ps` command
+- Print app output: Use `docker logs <container id>` command
+- Enter the container: Use `docker exec -it <container id> /bin/bash` command
+- Exit container: Use `exit` command

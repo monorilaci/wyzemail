@@ -1,0 +1,6 @@
+.env
+*.db
+
+.vscode/
+node_modules/
+attachments/

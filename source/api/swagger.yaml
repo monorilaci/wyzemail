@@ -1,0 +1,212 @@
+---
+swagger: "2.0"
+info:
+  description: "E-mail sender API"
+  version: "0.0.1"
+  title: "WyzeMail"
+  contact:
+    name: "Monori Laszlo"
+    url: "https://github.com/monorilaci"
+  license:
+    name: "MIT"
+    url: "http://opensource.org/licenses/MIT"
+paths:
+  /send:
+    post:
+      summary: "Send e-mail"
+      description: ""
+      operationId: "sendPOST"
+      consumes:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "email"
+        description: "Data of e-mail"
+        required: true
+        schema:
+          $ref: "#/definitions/Email"
+      responses:
+        204:
+          description: "Successfull"
+          headers:
+            X-RateLimit-Limit:
+              type: "integer"
+              description: "The number of allowed requests in the current period."
+            X-RateLimit-Remaining:
+              type: "integer"
+              description: "The number of requests left for the time window."
+            X-RateLimit-Reset:
+              type: "string"
+              format: "date-time"
+              description: "The UTC date/time at which the current rate limit window\
+                \ resets."
+        401:
+          description: "Unauthorized - API key is missing or invalid"
+        429:
+          description: "API rate limit exceeded. (Maximum request: 10 request / minute)"
+          headers:
+            X-RateLimit-Reset:
+              type: "string"
+              format: "date-time"
+              description: "The UTC date/time at which the current rate limit window\
+                \ resets."
+      security:
+      - ApiKeyAuthentication: []
+      x-swagger-router-controller: "Default"
+  /uploadAttachment:
+    post:
+      summary: "Upload attachment"
+      description: ""
+      operationId: "uploadAttachmentPOST"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "file"
+        description: "Name of file"
+        required: true
+        schema:
+          $ref: "#/definitions/Attachment"
+      responses:
+        200:
+          description: "Successfull"
+          headers:
+            X-RateLimit-Limit:
+              type: "integer"
+              description: "The number of allowed requests in the current period."
+            X-RateLimit-Remaining:
+              type: "integer"
+              description: "The number of requests left for the time window."
+            X-RateLimit-Reset:
+              type: "string"
+              format: "date-time"
+              description: "The UTC date/time at which the current rate limit window\
+                \ resets."
+          schema:
+            $ref: "#/definitions/AttachmentIdentification"
+        401:
+          description: "API key is missing or invalid"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        429:
+          description: "API rate limit exceeded. (Maximum request: 10 request / minute)"
+          headers:
+            X-RateLimit-Reset:
+              type: "string"
+              format: "date-time"
+              description: "The UTC date/time at which the current rate limit window\
+                \ resets."
+      security:
+      - ApiKeyAuthentication: []
+      x-swagger-router-controller: "Default"
+  /getApiKey:
+    get:
+      summary: "Get API key"
+      description: ""
+      operationId: "getApiKeyGET"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        200:
+          description: "Successfull"
+          headers:
+            X-RateLimit-Limit:
+              type: "integer"
+              description: "The number of allowed requests in the current period."
+            X-RateLimit-Remaining:
+              type: "integer"
+              description: "The number of requests left for the time window."
+            X-RateLimit-Reset:
+              type: "string"
+              format: "date-time"
+              description: "The UTC date/time at which the current rate limit window\
+                \ resets."
+          schema:
+            $ref: "#/definitions/ApiKey"
+        429:
+          description: "API rate limit exceeded. (Maximum request: 10 request / minute)"
+          headers:
+            X-RateLimit-Reset:
+              type: "string"
+              format: "date-time"
+              description: "The UTC date/time at which the current rate limit window\
+                \ resets."
+      x-swagger-router-controller: "Default"
+securityDefinitions:
+  ApiKeyAuthentication:
+    type: "apiKey"
+    name: "X-API-Key"
+    in: "header"
+definitions:
+  ApiKey:
+    type: "object"
+    properties:
+      apiKey:
+        type: "string"
+    example:
+      apiKey: "apiKey"
+  Attachment:
+    type: "object"
+    properties:
+      fileName:
+        type: "string"
+        description: "Name of file"
+      fileContent:
+        type: "string"
+        description: "Base64 encoded file content"
+    example:
+      fileName: "fileName"
+      fileContent: "fileContent"
+  AttachmentIdentification:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+    example:
+      id: "id"
+  Email:
+    type: "object"
+    properties:
+      subject:
+        type: "string"
+      to:
+        type: "array"
+        items:
+          type: "string"
+          format: "email"
+        minItems: 1
+      cc:
+        type: "array"
+        items:
+          type: "string"
+          format: "email"
+      body:
+        type: "string"
+        minLength: 1
+      attachmentIdentifications:
+        type: "array"
+        items:
+          type: "string"
+          format: "uuid"
+    example:
+      cc:
+      - "cc"
+      - "cc"
+      subject: "subject"
+      attachmentIdentifications:
+      - "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      - "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      to:
+      - "to"
+      - "to"
+      body: "body"
+responses:
+  UnauthorizedError:
+    description: "API key is missing or invalid"
+    headers:
+      WWW_Authenticate:
+        type: "string"

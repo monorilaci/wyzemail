@@ -1,0 +1,264 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "0.0.1",
+    "title": "WyzeMail",
+    "description": "E-mail sender API",
+    "contact": {
+      "name": "Monori Laszlo",
+      "url": "https://github.com/monorilaci"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuthentication": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-API-Key"
+    }
+  },
+  "paths": {
+    "/send": {
+      "post": {
+        "summary": "Send e-mail",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "email",
+            "description": "Data of e-mail",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Email"
+            }
+          }
+        ],
+        "security": [
+          {
+            "ApiKeyAuthentication": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfull",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "type": "integer",
+                "description": "The number of allowed requests in the current period."
+              },
+              "X-RateLimit-Remaining": {
+                "type": "integer",
+                "description": "The number of requests left for the time window."
+              },
+              "X-RateLimit-Reset": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The UTC date/time at which the current rate limit window resets."
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - API key is missing or invalid"
+          },
+          "429": {
+            "description": "API rate limit exceeded. (Maximum request: 10 request / minute)",
+            "headers": {
+              "X-RateLimit-Reset": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The UTC date/time at which the current rate limit window resets."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/uploadAttachment": {
+      "post": {
+        "summary": "Upload attachment",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "file",
+            "description": "Name of file",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Attachment"
+            }
+          }
+        ],
+        "security": [
+          {
+            "ApiKeyAuthentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "type": "integer",
+                "description": "The number of allowed requests in the current period."
+              },
+              "X-RateLimit-Remaining": {
+                "type": "integer",
+                "description": "The number of requests left for the time window."
+              },
+              "X-RateLimit-Reset": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The UTC date/time at which the current rate limit window resets."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/AttachmentIdentification"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/UnauthorizedError"
+          },
+          "429": {
+            "description": "API rate limit exceeded. (Maximum request: 10 request / minute)",
+            "headers": {
+              "X-RateLimit-Reset": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The UTC date/time at which the current rate limit window resets."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getApiKey": {
+      "get": {
+        "summary": "Get API key",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "type": "integer",
+                "description": "The number of allowed requests in the current period."
+              },
+              "X-RateLimit-Remaining": {
+                "type": "integer",
+                "description": "The number of requests left for the time window."
+              },
+              "X-RateLimit-Reset": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The UTC date/time at which the current rate limit window resets."
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/ApiKey"
+            }
+          },
+          "429": {
+            "description": "API rate limit exceeded. (Maximum request: 10 request / minute)",
+            "headers": {
+              "X-RateLimit-Reset": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The UTC date/time at which the current rate limit window resets."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "responses": {
+    "UnauthorizedError": {
+      "description": "API key is missing or invalid",
+      "headers": {
+        "WWW_Authenticate": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiKey": {
+      "type": "object",
+      "properties": {
+        "apiKey": {
+          "type": "string"
+        }
+      }
+    },
+    "Attachment": {
+      "type": "object",
+      "properties": {
+        "fileName": {
+          "type": "string",
+          "description": "Name of file"
+        },
+        "fileContent": {
+          "type": "string",
+          "description": "Base64 encoded file content"
+        }
+      }
+    },
+    "AttachmentIdentification": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "Email": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "type": "string"
+        },
+        "to": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "email"
+          },
+          "minItems": 1
+        },
+        "cc": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "body": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attachmentIdentifications": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    }
+  }
+}

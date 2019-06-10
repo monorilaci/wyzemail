@@ -1,0 +1,28 @@
+{
+  "name": "wyzemail",
+  "version": "0.0.1",
+  "description": "E-mail sender API",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "swagger"
+  ],
+  "license": "Unlicense",
+  "private": true,
+  "dependencies": {
+    "api-key-auth": "^0.2.1",
+    "connect": "^3.2.0",
+    "dotenv": "^8.0.0",
+    "fs-extra": "^8.0.1",
+    "hat": "0.0.3",
+    "js-yaml": "^3.3.0",
+    "moment": "^2.24.0",
+    "nodemailer": "^6.2.1",
+    "sqlite3": "^4.0.8",
+    "swagger-tools": "^0.10.4",
+    "uuid": "^3.3.2"
+  }
+}

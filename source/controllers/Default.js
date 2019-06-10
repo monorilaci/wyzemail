@@ -83,12 +83,21 @@ module.exports.uploadAttachmentPOST = function uploadAttachmentPOST (req, res, n
     }, function(err) {
       throw err;
     });
-    let fileSaverPromise = fileSaver.saveFile(req.headers['x-api-key'], file["fileName"], file["fileContent"]);
-    fileSaverPromise.then(function(result) {
-      utils.writeJson(res, '{ "id" : "' + result + '"}', 200);
-    }, function(err) {
-      throw err;
-    });
+    let fileNameSplit = file["fileName"].split(".");
+    let fileExtension = String(fileNameSplit[fileNameSplit.length - 1]);
+    var attachmentExtensions = process.env.ATTACHMENTS_EXTENSIONS.split(",");
+    var checkExtension = attachmentExtensions.find(extension => extension == fileExtension);
+    if (checkExtension == undefined) {
+      console.error("Invalid file extension");
+      utils.writeJson(res, response, 403);
+    } else {
+      let fileSaverPromise = fileSaver.saveFile(req.headers['x-api-key'], file["fileName"], file["fileContent"]);
+      fileSaverPromise.then(function(result) {
+        utils.writeJson(res, '{ "id" : "' + result + '"}', 200);
+      }, function(err) {
+        throw err;
+      });
+    }
   }).catch(function (response) {
     utils.writeJson(res, response, 500);
   });

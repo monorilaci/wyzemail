@@ -35,3 +35,13 @@ Docker commands:
 - Print app output: Use `docker logs <container id>` command
 - Enter the container: Use `docker exec -it <container id> /bin/bash` command
 - Exit container: Use `exit` command
+
+Required environment variables in .env file:
+- EMAIL_FROM_ADDRESS
+- EMAIL_FROM_NAME
+- GOOGLE_SMTP_SERVER_HOST
+- GOOGLE_SMTP_SERVER_PORT
+- GOOGLE_SMTP_SERVER_AUTH_USER
+- GOOGLE_SMTP_SERVER_AUTH_PASSWORD
+- API_KEY_EXPIRATION_HOURS
+- ATTACHMENTS_EXTENSIONS (separated by commas)
